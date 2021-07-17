@@ -13,7 +13,7 @@ url:                 https://shineeun.github.io
 baseurl:             ""
 
 # A very short description of your page
-tagline:             "더나은루트를향해"
+tagline:             "빛나는, 어제보다 더 나은 세상"
 
 # A short description of the page, used in the sidebar and as fallback for the meta description tag.
 # Markdown enabled, but don't use more than one paragraph (enforced by `>`)
