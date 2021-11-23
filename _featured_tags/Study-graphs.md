@@ -2,7 +2,7 @@
 layout: tag-blog
 title: Graphs
 slug: graphs
-category: TIL
+category: study
 menu: false
 order: 1
 ---
