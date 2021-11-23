@@ -3,7 +3,7 @@ layout: post
 title:  "[그래프데이터분석및응용] 네트워크 데이터의 구조 및 특징"
 subtitle:   "네트워크 데이터의 구조 및 특징"
 categories: study
-tags: graph
+tags: graphs
 comments: true
 header-img:
 ---
