@@ -1,7 +1,7 @@
 ---
 layout: tag-blog
-title: DataScience
-slug: datascience
+title: Graphs
+slug: graphs
 category: TIL
 menu: false
 order: 1
