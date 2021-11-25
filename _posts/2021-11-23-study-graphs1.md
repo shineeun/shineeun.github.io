@@ -80,9 +80,7 @@ header-img:
    *내가 아는 두 친구가 서로 아는 확률이 얼마 정도일까?* 
 
    하나의 node 기준으로 두개의 이웃 node가 연결될 확률이 높다면 랜덤성이 낮다고 볼 수 있다. 
-   $$
-   C_i=\frac{2e_i}{k_i(k_i-1)}\,where \, e_i \, is \, the\,  number\, of\, edges\, between\, the\, neighbors\, of\, node\,i\\k_i(k_i-1)\,is\,max\,number\,of\,edges\,between\,the\,k_i\,neighbors
-   $$
+   $ C_i=\frac{2e_i}{k_i(k_i-1)}\,where \, e_i \, is \, the\,  number\, of\, edges\, between\, the\, neighbors\, of\, node\,i\\k_i(k_i-1)\,is\,max\,number\,of\,edges\,between\,the\,k_i\,neighbors$
 
    * Clustering coefficient는 undefined for nodes with degree 0 or 1
 
