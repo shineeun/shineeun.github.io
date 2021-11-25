@@ -5,6 +5,7 @@ subtitle:   "네트워크 데이터의 구조 및 특징"
 categories: study
 tags: graphs
 comments: true
+use_math: true
 header-img:
 ---
 
@@ -87,9 +88,7 @@ header-img:
    * Average clustering coefficient
 
      전체 그래프의 평균
-     $$
-     C=\frac{1}{N} \displaystyle\sum_{i}^{N}{C_i}
-     $$
+     $C=\frac{1}{N} \displaystyle\sum_{i}^{N}{C_i}$
      
 
 4. **Connected components: s**
@@ -122,15 +121,11 @@ header-img:
          n이 커짐으로 인해, degree의 평균과 표준편차의 값이 작아질 것이다. 
 
        * Clustering coefficient
-         $$
-         E[e_i]=p\frac{k_i(k_i-1)}{2}\\
-         E[C_i]=p \approx \frac{kmean}{n|}
-         $$
+         $E[e_i]=p\frac{k_i(k_i-1)}{2}\\
+         E[C_i]=p \approx \frac{kmean}{n|}$
 
        * Path length
-         $$
-         h \approx O(logn)
-         $$
+         $h \approx O(logn)$
          
 
          - 15번 정도면 모든 노드에 전달이 될 수 있다. 
