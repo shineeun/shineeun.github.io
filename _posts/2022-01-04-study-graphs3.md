@@ -112,3 +112,17 @@ header-img:
       * Problem 2: Dead end
         - The matrix is not column stochastic (out link가 없으므로, 어느 열에서도 transition될 확률이 0이 됨)
         - solution: teleport를 사용하여 dead end의 경우 1의 확률로 teleport를 시키는 것 (adjust matrix accordingly)
+
+## 3. Centralities in a weighted network
+1. **Degree & Eigenvector centrality**  
+   * Replace elements of the adjacency matrix with weights
+2. **Closeness & betweenness centrality**
+   * Issue: definition of a distance between two adjacent nodes i and j depends on the definition of weight
+   * If the weight indicates **strength or frequency of the interaction**, then the distance is 
+     ![image](https://user-images.githubusercontent.com/60350933/148058583-b9091f7b-ac2b-43a5-a79d-77b019e808fc.png)
+     where alpha is hyperparameter
+     * Epidemic network
+     * 
+   * If the weight indicates **cost of the interaction**, the distance is 
+     ![image](https://user-images.githubusercontent.com/60350933/148058865-1ea50267-72f0-4195-9726-a7cc586bd325.png)
+     * Road traffic network
