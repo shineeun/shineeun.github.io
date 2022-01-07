@@ -164,3 +164,14 @@ header-img:
      * LINE: directly optimize based on 1 and 2-hop random walk probabilities 
    * Network preprocessing technichs 
      * Struc2vec, HARP: run random walks on modified versions of the original network. 
+
+## 5. Limitations of shallow embedding methods
+#### 1. Limitations
+   * O(|V|) parameters are needed
+     * no sharing of parameters between nodes
+     * Every node has its unique embedding
+   * transductive
+     * Cannot generate embeddings for nodes that are not seen during training
+   * Do not incorporate node features
+     * Many graphs have features that we can and should leverage. 
+    
