@@ -65,6 +65,13 @@ Representation learning은 다음과 같은 4가지의 측면으로 볼 수 있�
 ## Knowledge representation learning (KRL, KGE, multi-relation learning, statistical relational learning)
 KRL 모델을 학습하는 전략은 Appendix D에 소개됨
 ### A. Representation space
+Key Issue: to learn low-dimensional distributed embedding of entities and relations.
+* Embedding space should follow three conditions: differentiability, calculation possibility, and definability of a scoring function. 
+#### 1) Point-wise space
+* TransE: represents entities and relations in d-dimension vector space and makes embedding follow the translational princible
+* TransR: introduces separated spaces for entities and relations. 
+  * Entities를 relation으로 projection matrix(Mr ∈ Rk×d)를 통해서 project 
+* NTN: 
 ### B. Scoring function
 ### C. Encoding models
 ### D. ausiliary information
