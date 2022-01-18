@@ -11,6 +11,9 @@ header-img:
 
 Ji, S., Pan, S., Cambria, E., Marttinen, P., & Philip, S. Y. (2021). A survey on knowledge graphs: Representation, acquisition, and applications. IEEE Transactions on Neural Networks and Learning Systems.
 
+## Abstract
+Human knowledge provides a formal understanding of the world. Knowledge graphs that represent structuralrelations between entities have become an increasingly popular research direction towards cognition and human-level intelligence. In this survey, we provide a comprehensive review of knowledge graph covering overall research topics about 1) knowledge graph representation learning, 2) knowledge acquisition and completion, 3) temporal knowledge graph, and 4) knowledge-aware applications, and summarize recent breakthroughs and perspective directions to facilitate future research. We propose a full-view categorization and new taxonomies on these topics. Knowledge graph embedding is organized from four aspects of representation space, scoring function, encoding models, and auxiliary information. For knowledge acquisition, especially knowledge graph completion, embedding methods, path inference, and logical rule reasoning, are reviewed. We further explore several emerging topics, including meta relational learning, commonsense reasoning, and temporal knowledge graphs. To facilitate future research on knowledge graphs, we also provide a curated collection of datasets and open-source libraries on different tasks. In the end, we have a thorough outlook on several promising research directions.
+
 ## 1. Overview
 ### A. Brief history of knowledge bases
    * Reasoning and problem solving에 많이 사용되어 왔으며, resource description framework (RDF)와 Web Ontology Language (OWL)을 통해서 Semantic web에 대한 중요한 기준들이 세워졌다. 
@@ -71,7 +74,12 @@ Key Issue: to learn low-dimensional distributed embedding of entities and relati
 * TransE: represents entities and relations in d-dimension vector space and makes embedding follow the translational princible
 * TransR: introduces separated spaces for entities and relations. 
   * Entities를 relation으로 projection matrix(Mr ∈ Rk×d)를 통해서 project 
-* NTN: 
+* NTN: models entities across multiple dimensions by a bilinear tensor neural layer. The relational interaction between head and tail is captured as tensor
+* HAKE: captures semantic hierarchies by mapping entities into polar coordinate system
+#### 2) Complex vector space
+e h, t, r ∈ C_d
+head entity= Re(h))+iIm(h) whree Re(h) is the real part and IM(h) is the imaginary part
+* ComplEx, RotatE
 ### B. Scoring function
 ### C. Encoding models
 ### D. ausiliary information
