@@ -86,9 +86,68 @@ In this paper, we contribute a new model named Knowledgeaware Path Recurrent Net
   * encode the elements sequentially with the goal of capturing the compositional semantics of entities conditionied on relations
   * RNN model is employed to explore the sequential imformation and generage a single representation for encoding its holistic semantics
     * **LSTM**: memorizing long-term dependency in sequence -> long-term sequential pattern은 user과 item entities를 연결하는 path를 reasoning하는 데 중요하게 작용
-  *  
+  *  Path step *l*-1에서 LSTM 층은 hidden state vector (consuming the subsequence [e1, r1, ..., e(l-1), r(l-1)]를 output으로 낸다. 
+     ![image](https://user-images.githubusercontent.com/60350933/150646969-cf4ef8eb-4f71-4eb9-abe1-59bcdbf4503b.png)
+     * Input vector은 sequential information과 entity의 semantic information, next entity와 관계가 다 포함이 됨
+  * x(l-1)과 h(l-1)은 path-step의 hidden state인 l을 파악하기 위한 용도로 사용됨
+    ![image](https://user-images.githubusercontent.com/60350933/150647041-bc035c3f-370b-42f3-bbc0-763df49fd8b4.png)
+    이때 c*l*은 cell state vector이며, z는 information transformation module, d'는 number of hidden units이다. 
+    i,o,f는 각각 input, output, forget state이다. 
+    activation function은 시그모이드를 사용했다. 
+    * Memory state의 장점을 사용하여, last state인 h(L)은 whole path p*k*를 나타내는 것이 가능함
+  * Predict plausibility of τ: two fully-connected layers are adopted to project the final state into predictive score
+     Equation 4 ![image](https://user-images.githubusercontent.com/60350933/150647169-e645d918-4705-4cb0-b57f-3ee9f919b5f7.png)
+     * 이떄 W1과 W2는 coefficient weights of the first and second layers respectively
 * Pooling layer: combine multiple paths and output (the final score of the given user interacting the target item)
-   
+  * S={s1,s2,...,sk} : predictive scores for K paths
+  * P(u,i)={p1,p2,...,pk}: connecting a user-item pair (u,i) where each element is calculated based on Eq.4
+  * **Weighted pooling operation**
+    * final prediction은 모든 path의 score의 평균으로 할 수 있지만, 각 path의 중요성을 파악하지 못하기 때문
+      ![image](https://user-images.githubusercontent.com/60350933/150647272-88d0239d-2514-411d-acfa-f70053e6a89a.png)
+      이 때, γ는 exponential weight을 계산하기 위한 것으로 0에 가까울 수록 max-pooling이 되고, 무한대로 수렴할 수록 mean-pooling이 된다. 
+  * Final prediction score
+    ![image](https://user-images.githubusercontent.com/60350933/150647290-4a7017d7-b620-4fab-9472-41a22ae4393c.png)
+  * Path importance를 계산하는 것이 가능해짐 (proportional to the score of each path during the back-propagation step)
+    ![image](https://user-images.githubusercontent.com/60350933/150647397-81413cfc-c25d-4906-8978-556c003c127b.png)
+
+#### 2.4. Learning
+* Binary problem whether the interaction is observed
+* Objective function: negative log-likelihood
+  ![image](https://user-images.githubusercontent.com/60350933/150647557-a05d15dc-307b-4e80-b260-de609e163a64.png)
+* L2 regularization on parameters Θ
+
+## 3. Experiments
+#### 3.1. Dataset Explanation
+MovieLens-1M과 IMDb dataset (영화) KKBox(음악)
+
+#### 3.2. Experimental settings
+Evaluation metrics to evaluate the performance of top-K recommendation and preference ranking
+* hit@K: relevant items are retrieved within the top K positions of the recommendation list
+* ndgc@K: the relative orders maong positive and negative items within the top K of the ranking list
+
+Baselines
+* Matrix factorization with Bayesian personalied rankings (2009)
+* NFM (2017)
+* CKE (2016): embedding-based method
+* FMG (2017): SOTA meta-path based method
+
+#### 3.3. Performance Comparison
+KPRN이 가장 좋은 성능을 보임. 
+
+#### 3.4. Investigation of the role of path modeling
+1) Effects of Relation modling 
+   * Relation을 고려하지 않을 때 성능 저하
+   * user과 item간의 strong connectivity가 존재할 때, path가 더 중요한 경향이 있음
+2) Effects of weighted pooling
+  * γ을 1에서 0.1로 줄이면, weighted pooling operation degrades the performance
+    * max-pooling처럼 user-item connectivity에서 가장 중요한 path만 선택하기 때문임.  
+  * γ을 1에서 10으로 늘리면 informative한 path만 고려하는 것이 아니라 더 많은 path를 aggregate하기 때문에 성능이 더 안 좋아짐 
+
+#### 5. Conclusions
+Future studies
+1) mimic the propagation process of user preferences within KG vis GNNs
+2) KG links multiple domains together with overlapped entities, plan to adopt zero-shot learning to solve cold start issues in the target domain. 
+
 
 
 
