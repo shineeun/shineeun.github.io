@@ -233,7 +233,9 @@ A. Language representation learning
 * KEPLER: combines knowledge embedding and masked language modeling losses via joint optimization
 * GLM: graph-guided entity masking scheme to utilize KG implicitly
 * CoLAKE: knowledge context of an entity through a unified word-knowledge graph and modified Transformer encoder
+
 B. Question Answering
+
 C. Recommender systems
 KG에서의 multi-hop neighbors의 embedding propagation을 통해 해석 정도를 높인다. 
 * CKE, DKN, MKR (multi-task KG representation and recommendation by sharing latent features and modeling high-order item-entity interaction)
