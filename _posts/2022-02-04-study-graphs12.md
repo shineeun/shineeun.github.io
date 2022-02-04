@@ -61,5 +61,22 @@ Graph neural networks (GNNs) have been widely used in representation learning on
 
 
 ## 3. Method
+* 더 효율적인 graph convolution을 만들고 강력한 node representation을 학습하기 위해서 여러 후보 인접행렬을 찾음
+* 새로운 그래프 구조를 학습한다는 것은 유용한 meta-path와 multi-hop connections를 인식하는 것을 포함함
 
+#### 1) Preliminaries
+* **Heterogeneous Graph**
+  * Deach node v and each edge e가 각각의 type mapping function ( Tv(v): V → Tv, Te(e): ε→Te)과 연관되어 있는 Directed graph
+    * G = (V, E, Tv, Te)
+  * 해당 그래프는 인접행렬의 set이나 ![image](https://user-images.githubusercontent.com/60350933/152460708-58c70b04-4d2c-4874-b232-d64198332e43.png) tensor ![image](https://user-images.githubusercontent.com/60350933/152460838-ad067c46-0d07-41fc-a5c1-c050447796c4.png) 으로 나타날 수 있다. 
+    *  이떄 At는 t 번째 edge type의 인접행렬이고, |V|=N
+    *  At[i,j]는 node *j*로부터 node *i*까지의 t번째 edge type의 weight을 나타냄. 
+       *  그래프가 single type의 node와 edge를 가지면,|Tv| = 1,  |Te| = 1인 homogeneour graph이다. 
+ * **Metha-path**
+   *  Heterogeneous 그래프에서의 multi-hop connection이며, heterogeneous edge type을 연결시켜주는 path
+* **Graph Convolutional Network** 
+  * 해당 모델에서 end-toend로 node를 classify할 때 사용이 됨.  
+  * H(*l*)을 l번째 layer의 feature representation이라고 할 때, forward propagation은 다음과 같다. 
+    ![image](https://user-images.githubusercontent.com/60350933/152461857-8bca7d7c-5d55-4884-849c-c2a5fdc8a262.png)
+    * 이때, Ã = A+I로, A 인접행렬에 self-connetion이 더해진 것이며, D
 
