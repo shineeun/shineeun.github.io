@@ -68,7 +68,7 @@ Knowledge graphs enable a wide variety of applications, including question answe
     * direct sum over a set of low-dimensional matrices, which makes W the block-diagonal matrices
       ![image](https://user-images.githubusercontent.com/60350933/153758829-1a8563f1-a02c-4afc-9734-10895967dfb2.png)
     * 각 relation type의 weight matrices에 대한 sparsity constraint로 볼 수 있음
-    * group간이 아닌 group 내에 coupled 된 set of variables로 latent feature이 구성되어진다고 볼 수 있음. 
+    * latent features는 within group 끼리 더 tightly coupled 되로고 설계
   * 이 2개의 decomposition은 highly multi-relational data에 필요한 파라미터의 개수를 줄여주며, basis- parameterization은 희귀한 관계와 빈도가 높은 관계 간의 parameter update를 가능하게 하기 때문에 overfitting이 줄어들 수 있다. 
 
 * **R-GCN 모델의 전체 구조**
@@ -85,7 +85,7 @@ Knowledge graphs enable a wide variety of applications, including question answe
 #### 2.4. link prediction
 * Prediction of new facts
 * **Graph auto-encoder model** - entity encoder와 scoring function(decoder)로 구성 제안
-  * Encoder: 각 entity를 real-valued vector ei에 maaping
+  * Encoder: 각 entity를 real-valued vector ei에 mapping
     * 기존연구: single, real-value ei를 각 node마다 사용하여 train시킴
     * 제안: R-GCn encoder을 통해 representation을 계산
       ![image](https://user-images.githubusercontent.com/60350933/153760477-3c41d274-d8fb-4dad-b3bc-3f1a3736e08b.png)
