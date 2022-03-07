@@ -140,7 +140,114 @@ Data imputation과 frequencey-based gating technique 사용하여 temporal heter
   * Imputation (IM)을 통해서 stale representations에 temporal representation을 통합하게 된다. 
   * 따라서 imputed structural representation은 
   ![image](https://user-images.githubusercontent.com/60350933/156346205-8ecd3216-5296-4c32-95fe-3fc96e1d47ff.png)
-  * 
+  * 이 때 IM은 **weighted sum function**으로 Equation(1)과 유사하게 exponential decay가 적용이 된다. 
+    ![image](https://user-images.githubusercontent.com/60350933/156953157-21cf4a82-2bbb-4621-9cf4-0f4c2085fc01.png)
+    * exponential decay: 시간에 따라 일정한 비율로 감소하도록 하는 것. 
+  * Imputed representation
+    ![image](https://user-images.githubusercontent.com/60350933/156954472-7962ce25-1f71-49e8-bd84-6562814ff185.png)
+    * 이 때, static model에서 x_i,t를 x_hat_i,t 로 변경하여 사용함을 통해서 temporal model로 활용할 수 있다. 
+
+* Frequency-base gating (FG)
+  * entity의 encoded representation의 경우 얼마나 최근 temporal facts와 관련이 있는지에 영향을 많이 받는다. 
+  * structural output과 temporal embedding을 융합할 수 있도록 gating term을 적용
+  * Query type (subject/object)과 entity position (queried fact에서 entity가 subject인지 object인지)에 따라 weight을 미분하여 quadruple에서의 역할을 문맥화할 수 있게 한다. 
+  * **Pattern**
+    * non-empty set of the quadruple (s,r,o,t)
+  * **Temporal Frequency** of pattern
+    * Number of facts with such patterns in the defined time window
+    * ex. (Obama, visit, China, 2014)라는 패턴이 존재할 때, (Obama, visit)의 패턴의 frequency는 t'가 timewindow 2000-2014에 속할 때의 (Obama, visit, *,t')의 quadruple의 개수를 의미함. 
+  * quadraple (s,r,o,t)의 **Temporal pattern frequencies (TPFs)**
+    * (1) subject frequency
+      ![image](https://user-images.githubusercontent.com/60350933/156958633-87e0e259-1e18-4e7d-9879-103d146848c5.png)
+    * (2) Object frequency ![image](https://user-images.githubusercontent.com/60350933/156975099-e9d75367-1776-4c16-b061-348785a6ef51.png)
+    * (3) relation frequency ![image](https://user-images.githubusercontent.com/60350933/156975121-47d841d0-03c4-41ad-b8cc-1d914d174a3c.png)
+    * (4) Subject-relation frequency
+    * (5) Relation-object frequency
+  * Gating mechanism을 quadruple에서 사라진 object를 예측하는 관점에서 정의를 함
+    * Subject로 설정을 해도 딤 (Appendix A.3.)
+    * Object에서 예측을 하는 것이라면, 모델은 Fs=[subject frequency,relation frequency, subject-relation frequency]에 대해서만 접근이 가능하며, 이 frequency vector Fs에만 대하여 query의 embedding에 대한 gating term을 정의함
+      ![image](https://user-images.githubusercontent.com/60350933/156975608-c3697fc9-fe6f-4414-ab4f-8337d21d792e.png)
+      ![image](https://user-images.githubusercontent.com/60350933/156975622-0f76a669-ee94-40c6-92dc-96ed30373d80.png)
+      * α_o,s와 α_oo는 two-layer dense neural network를 통해서 학습된 [0,1] 사이의 weight이다. 
+#### 3.4. Decoder와 학습
+* φ(.): tuple에 대한 score
+* DEC: static KG에 대한 decoding function (ex. TransE decoder)
+* The score for quadruple
+  * ![image](https://user-images.githubusercontent.com/60350933/156975837-bb8903d2-fbbd-4f64-a198-ec23c92c4efa.png)
+    * ![image](https://user-images.githubusercontent.com/60350933/156975868-7990e4e4-e8dc-4637-b96b-9ffdc43e07ca.png): subject and object embeddings
+    * z_r: relation r에 대한 학습된 엠베딩
+* 이 score function을 사용하여 모델을 학습한다면, the model parameters are learned using gradient-based optimization in mini-batches
+* 각 triple  η =(s, r, o) ∈ D(t)에 대하여, negative set of entities D−_η= {o'|(s, r,o')not in D(t)}을 추출하고 cross-entropy loss를 정의한다.
+  ![image](https://user-images.githubusercontent.com/60350933/156976836-ddb5cd6f-f28c-4f8d-a658-83b733cc6c98.png)
+
+* 동일한 과정을 subject에 대해서도 진행을 해준 후, final training loss를 L=L_sub+L_obj로 두어 학습을 한다. 
+
+## 4. Experiments
+#### 4.1. Dataset
+* Global database of events, language and ton (GDELT)
+* Integrated Crisis Early Warning System (ICEWS)- ICEWS14, ICEWS05-15
+#### 4.2. Evaluation Metrics
+모든 quadraple (s,r,o,t)에 대해서, (s,r,?,t)와 (?,r,o,t)에 대해 평가를 진행한다. 
+* (s',r,o,t)에 대해서 score을 계산함
+* 각 쿼리에 대해서 (s,r,o,t)의 rank를 계산하여 metrics를 계산함
+* Hits@1, @3, @10 scores와 MRR을 통해서 평가를 진행함
+
+#### 4.3. Baseline methods
+* Rule-based baseline
+  * Temporal exponential decay
+    * rule-based baseline
+    * Copying facts from quadruples in the recent past and future
+    * 가까운 시간의 facts를 복사하면서 missing fact를 계산함
+    * copying fact의 확률은 (1) queried quadruple과 겹치는 elements의 number을 계산하거나 (2) 현재 timestep의 temporal distance와 가까운 fact에 기반함  
+* Static embedding methods: input에 time을 고려하지 않음
+  * TransE
+  * DistMult
+  * ComplEx
+  * SimplE
+  * Static RGCN (SRGCN): RCGN messaging 방법론을 활용
+* SOTA TKGC methods
+  * TTransE
+  * TADistMult
+  * HyTe
+  * Diachronic Embedding
+  * AtisEE
+  * AtisER
+  * TNTComplEx 
+#### 4.4. Implementation and hyperparameters
+* PyTorch lightning, Deep Graph Library
+
+#### 4.5. Results and analysis
+* TeMP-GRU와 TeMP-SA를 사용하고, frequency-based gating과 imputation은 옵셔널로 둠
+![image](https://user-images.githubusercontent.com/60350933/156978488-a40b859e-e2ac-487a-8918-b460ae6199cf.png)
+
+* TeMP-GRU와 TeMP-SA 모두 SOTA를 달성함 (Hits@10 관점에서)
+* Baseline 모델 중에 rule-based TED baseline이 모든 데이터셋에서 강력한 성능을 보임
+  * queried quadruples와 동일한 패턴의 temporal facts를 커피하는 것의 강력함
+  * SRGCN의 경우에도 높은 성능을 보였는데 이는 message-passing 절차가 모델로 하여금 multi-hop structural info를 time-step별로 잘 leverage할 수 있기 때문임
+* IM과 FG에 대한 test
+  * ![image](https://user-images.githubusercontent.com/60350933/156978563-4908e5e1-366a-4e69-9f86-df9f6127500a.png)
+  * 모든 timestemp에서 모든 entity가 active하다면 IM과 FG의 성능은 효과가 없다. 
+
+#### 4.5.3 Fine-grained Error Analysis
+* TKGC 쿼리가 temporal pattern frequency가 달라짐에 따라 어떻게 모델의 성능이 달라지는 지 평가하기 위해 quadruples를 다른 TPF로 그룹지어 각 그룹별로 Hits@10을 계산
+* subject-relation frequency를 subject와 object query에 대한 모델 성능과 비교하여 *replication*과 *reference* 효과를 파악
+  * Replication effect: Temporal fact로부터 동일한 정답을 복사하여 예측하는 것
+    * ex. (Obama, visit,?,2014)를 (Biden, visit, China, 2013)으로부터 복사하여 예측하는 것
+  * Reference 효과: 유사한 fact를 활용하여 temporal context를 통해서 답을 포함하는 것
+    * ex. Obama가 2013년에 방문한 국가들 중에서 2014년에 간 곳을 유추하는 것
+* Static 모델과 비교
+  * replication 모델의 경우 TeMP-GRU 모델의 성능이 더 좋음
+    * TeMP 모델들이 TKGC에 있어서 temporal facts를 사용하는데 더 유리하다는 것을 알 수 있으며, 모든 TFPs에 있어서 frequency-based gating이 전반적인 성능 향상에 도움을 준다. 
+  * reference 효과에 있어서는 TPFs가 크면 클수록 성능이 더 떨어진다.
+    * Temporal model이 object query performance와 subject-relation TPF간의 non-linear correlation이 존재함을 알 수 있다. 
+    * 즉, Obama가 2008년부터 2013년까지 100개 이상의 국가를 방문했다면 China를 선택하는 것이 더 어려울 것이다. 
+    * 따라서 gating의 경우, high TPFs를 가지는 query에 있어서 중요한 역할을 한다. 
+
+## 5. Conclusion
+In this work, we present a novel framework named TeMP for temporal knowledge graph completion (TKGC). TeMP computes entity representation by jointly modelling multi-hop structural information and temporal facts from nearby time-steps.
+Additionally, we introduce novel frequencybased gating and data imputation techniques to address the temporal variability and sparsity problems in TKGC. We show that our model is able to achieve superior performance (10.7% relative improvement) over the state-of-the-arts on three benchmark datasets. 
+Our work is potentially beneficial to other tasks such as temporal information extraction and temporal question answering, by providing beliefs about the likelihood of facts at particular points in time.
+Future work involves exploring the generalization of TeMP to continuous TKGC and better imputation techniques to induce representations for infrequent and inactive entities. 
 
 ## References
 Busbridge, D., Sherburn, D., Cavallo, P., & Hammerla, N. Y. (2019). Relational graph attention networks. arXiv preprint arXiv:1904.05811.
