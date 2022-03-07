@@ -67,9 +67,85 @@ Inferring missing facts in temporal knowledge graphs (TKGs) is a fundamental and
     * DySAT (Sankar et al., 2020)
       * Self-attention을 사용하여 dynamic graph에 대한 latent node representation을 학습 
     * 이 두가지 방법은 graph extrapolation (sequence에서 next time-step을 예측하는 것)으로 TKGC와는 다른 방법론이다. 
-    * 
+
+## 3. Proposed Approach
+Goal: TKG의 missing fact를 예측하는 것
+* TKG *G*={G(1),G(2),...,G(T)}, where G(t)=(E,R,D(t))
+* 여기서 E와 R은 모든 시간대에 걸친 entity와 relation의 union set을 의미한다. 
+* D(t)는 time t에 존재하는 모든 observed triple의 set을 의미함 
+
+#### Overview of TeMP
+Encoder와 decoder의 관점으로 설명
+* Encoder
+  * 각 entity를 각 time-step t별로 time-dependent low-dimensional embedding z_i,t를 진행
+  * structural entity representation과 temporal representaiton을 combine
+    * Structural encoder (SE): multi-relational message passing network에 기반으로 하여, entity representation을 진행
+      ![image](https://user-images.githubusercontent.com/60350933/156308446-2dc98dce-d652-4121-9e78-e85e9e5464db.png)
+
+    * Temporal encoder (TE): 이전 시간대의 SE의 결과를 통합하여 time-dependent low-dimensional embedding z_i,t를 추론함
+      ![image](https://user-images.githubusercontent.com/60350933/156308569-40a484ca-07b0-4067-af20-d473eb314f0d.png)
+      * τ: number of temporal input KG snapshots to the model
+* Decoder
+  * Entity의 embedding을 Temporal fact의 likelihood를 점수로 변환
+![image](https://user-images.githubusercontent.com/60350933/156306721-6a227701-523c-450e-9f8a-45fafd97307c.png)
+
+#### 3.1. Structure Encoder
+* 각 time-step G(t)의 entity embedding을 생성
+* ![image](https://user-images.githubusercontent.com/60350933/156310103-96ac4a4a-a99f-43da-96b7-5391cfae1c07.png)
+  * u_i: one-hot embedding indicating entity e_i
+  * W0: entity embedding matrix
+  * W_r(l), W_s(l)=transformation matrices specific to each layer of the model
+    * 모든 time stamp에 있어서 공유됨
+  * N_ir: relation r로 연결된 e_i의 set of neighboring entities
+    * 이 size는 neighborhood information을 평균화하여, normalizing constant의 역할을 한다. 
+   * L개의 layer을 통해서 G(t)의 snapshot에 대해 message-passing 방법론을 사용한 후에, 그 결과로 나오는 entity e_i에 대한 structural embedding entity를 x_i,t로 표현하며, 이는 G(t) 내의 L-hop neighborhood를 요약하는 역할을 한다. 
+   ![image](https://user-images.githubusercontent.com/60350933/156320416-c92a2690-c314-429a-ae1c-af92b8ac74f7.png)
+
+* Structural encoder로 RGCN을 사용하지만, CompGCN이나, EdgeGAT와 같은 multi-relational message passing network에 다 적용할 수 있음   
+
+#### 3.2. Temporal Encoder
+Entity representation의 across-time information을 통합하는 것
+* 방법1: Recurrent architecture 
+  * Temporal Recurrence model (TeMP-GRU)
+    * weight decay를 traditional recurrence mechanism에 추가하여 historical facts의 diminishing한 효과를 반영하고자 한다. 
+    * t-가 entity e_i가 t이전에 active한 상태였던 마지막 시간이라고 하면, down-weighted entity representation은 다음과 같다. 
+      ![image](https://user-images.githubusercontent.com/60350933/156324937-3a1f214c-7047-4d68-8328-db108493d629.png)
+       *  γz: λz와 bz를 학습가능한 파라미터로 가지는 decay rate이며, 0-1 사이의 값을 가지고, temporal difference에 따라서 monotonically decreasing하는 특성을 가지고 있다. 
+       *  ![image](https://user-images.githubusercontent.com/60350933/156325236-b85242b7-e10a-403c-a6bd-cfa81e860344.png)일 때만 down-weighted entity representation이 nonzero가 된다. 
+     *  Gated recurrent unit (GRU)를 사용하여 entity embedding z_i,t를 구한다. 
+        ![image](https://user-images.githubusercontent.com/60350933/156325420-46e51856-3f12-4e43-ba72-ba67a5b8d7c7.png)
+     
+* 방법2: Self-attention approach
+  * Temporal self attention model (TeMP-SA)
+  * Active temporal entity representation의 sequence에 선택적으로 접근함을 통해 historical information을 반영할 수 있다. 
+  * Transformer 아키텍쳐를 기반으로하여 각 time-step t'의 entity embedding에 attentive pooling을 적용하여, time-dependent embedding을 적용한다. 
+    ![image](https://user-images.githubusercontent.com/60350933/156326599-2aa65149-1fa8-4f43-928a-929ccb050e24.png)
+    * Wq, Wk, Wv는 transformer layer에서처럼 linear projection matrix
+    * β는 multiplicative attention function을 통해 얻어진 attention weight matrix
+    * {λz, bz}는 down-weighting function에서의 학습 파라미터
+    * M: mask
+      ![image](https://user-images.githubusercontent.com/60350933/156326968-ac1f5861-69cd-411f-b24f-e88d0ae92676.png)
+      * M이 마이너스 무한대로 갈 수록 attention weights βij는 0에 수렴함. 이는 **active한 temporal entity representation만이 non-zero weight를 가질 수 있도록 함**
+  * Full-self attention model은 multiple attention head를 사용하여 생성되어질 수 있다. 
+
+#### Incorporating future information
+* bi-directional GRU를 적용 (recurrent approach)하거나 past와 future time steps를 모두 attend하는 방식(attention-based approach)으로 적용
+
+#### Tackling Temporal Heterogeneities
+Data imputation과 frequencey-based gating technique 사용하여 temporal heterogeneities를 다룸
+* Dataset마다 heterogeneities는 달라질 수 있으므로, 이러한 heterogeneities를 다루는 것은 옵셔널 하다. 
+* Imputation of inactive entities
+  * Structural encoder은 동일한 KG snapshot 내 존재하는 neighboring entities를 encode하는 구조이다. 
+  * Time step t에서 활성화되지 않은 entity e_i의 경우, static representation x_i,t의 경우 다른 이웃들에 의해서 informed되지 않게되며, multiple time step 간의 stale한 representation이 공유가된다. 
+  * Imputation (IM)을 통해서 stale representations에 temporal representation을 통합하게 된다. 
+  * 따라서 imputed structural representation은 
+  ![image](https://user-images.githubusercontent.com/60350933/156346205-8ecd3216-5296-4c32-95fe-3fc96e1d47ff.png)
+  * 
 
 ## References
+Busbridge, D., Sherburn, D., Cavallo, P., & Hammerla, N. Y. (2019). Relational graph attention networks. arXiv preprint arXiv:1904.05811.
 Jin, W., Qu, M., Jin, X., & Ren, X. (2019). Recurrent event network: Autoregressive structure inference over temporal knowledge graphs. arXiv preprint arXiv:1904.05530.
 Han, Z., Ma, Y., Wang, Y., Günnemann, S., & Tresp, V. (2020). Graph hawkes neural network for forecasting on temporal knowledge graphs. arXiv preprint arXiv:2003.13432.
 Sankar, A., Wu, Y., Gou, L., Zhang, W., & Yang, H. (2020, January). Dysat: Deep neural representation learning on dynamic graphs via self-attention networks. In Proceedings of the 13th International Conference on Web Search and Data Mining (pp. 519-527).
+Vashishth, S., Sanyal, S., Nitin, V., & Talukdar, P. (2019). Composition-based multi-relational graph convolutional networks. arXiv preprint arXiv:1911.03082.
+
