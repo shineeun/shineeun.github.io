@@ -67,6 +67,7 @@ Inferring missing facts in temporal knowledge graphs (TKGs) is a fundamental and
     * DySAT (Sankar et al., 2020)
       * Self-attention을 사용하여 dynamic graph에 대한 latent node representation을 학습 
     * 이 두가지 방법은 graph extrapolation (sequence에서 next time-step을 예측하는 것)으로 TKGC와는 다른 방법론이다. 
+    * 
 
 ## References
 Jin, W., Qu, M., Jin, X., & Ren, X. (2019). Recurrent event network: Autoregressive structure inference over temporal knowledge graphs. arXiv preprint arXiv:1904.05530.
